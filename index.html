@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Sorry 💗</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { inter: ['Inter', 'sans-serif'], hand: ['Caveat', 'cursive'] },
+      colors: {
+        pink: { 50:'#fdf2f8',100:'#fce7f3',200:'#fbcfe8',300:'#f9a8d4',400:'#f472b6',500:'#ec4899',600:'#db2777',700:'#be185d',800:'#9d174d',900:'#831843' }
+      }
+    }
+  }
+}
+</script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{width:100%;height:100%;overflow:hidden;font-family:'Inter',sans-serif;background:#0a0a0a;color:#fff}
+  body{position:fixed;inset:0}
+
+  .page{display:none;width:100%;height:100%;position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+  .page.active{display:flex}
+
+  /* Scrollbar hide */
+  .page::-webkit-scrollbar{display:none}
+  .page{-ms-overflow-style:none;scrollbar-width:none}
+
+  /* Welcome */
+  #welcome{
+    flex-direction:column;align-items:center;justify-content:center;
+    background:radial-gradient(ellipse at 50% 40%,rgba(236,72,153,0.15) 0%,rgba(10,10,10,1) 70%);
+    padding:60px 24px 40px;
+  }
+  .welcome-heart{font-size:clamp(50px,15vw,80px);animation:heartBeat 1.2s ease-in-out infinite}
+  @keyframes heartBeat{0%,100%{transform:scale(1)}15%{transform:scale(1.25)}30%{transform:scale(1)}45%{transform:scale(1.15)}60%{transform:scale(1)}}
+  .welcome-text{opacity:0;transform:translateY(30px);animation:fadeUp 1s ease forwards 0.5s}
+  .welcome-sub{opacity:0;transform:translateY(20px);animation:fadeUp 1s ease forwards 1s}
+  .welcome-btn{opacity:0;transform:translateY(20px) scale(0.9);animation:fadeUp 1s ease forwards 1.5s}
+  @keyframes fadeUp{to{opacity:1;transform:translateY(0) scale(1)}}
+
+  .particle{position:absolute;border-radius:50%;pointer-events:none;animation:floatUp linear infinite}
+  @keyframes floatUp{0%{transform:translateY(100vh) rotate(0deg);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(-10vh) rotate(360deg);opacity:0}}
+
+  /* Letter */
+  #letter{
+    flex-direction:column;align-items:center;justify-content:center;
+    background:radial-gradient(ellipse at 50% 30%,rgba(236,72,153,0.1) 0%,rgba(10,10,10,1) 70%);
+    padding:60px 16px 40px;
+  }
+
+  .envelope-container{perspective:1000px;cursor:pointer;position:relative;width:min(300px,80vw);height:min(210px,56vw)}
+  .envelope{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform 0.8s cubic-bezier(0.4,0,0.2,1)}
+  .envelope.opened{transform:rotateX(-15deg) translateY(-20px)}
+  .envelope-body{width:100%;height:100%;background:linear-gradient(135deg,#fce7f3,#fbcfe8);border-radius:8px;position:relative;box-shadow:0 20px 60px rgba(236,72,153,0.2),0 0 0 1px rgba(251,207,232,0.3);overflow:visible}
+  .envelope-flap{position:absolute;top:0;left:0;width:100%;height:60%;background:linear-gradient(135deg,#f9a8d4,#f472b6);clip-path:polygon(0 0,50% 100%,100% 0);transform-origin:top center;transition:transform 0.8s cubic-bezier(0.4,0,0.2,1);z-index:10;border-radius:8px 8px 0 0}
+  .envelope.opened .envelope-flap{transform:rotateX(180deg)}
+  .envelope-inner-flap{position:absolute;top:0;left:0;width:100%;height:60%;background:linear-gradient(135deg,#fecdd3,#fda4af);clip-path:polygon(0 0,50% 100%,100% 0);z-index:5}
+  .letter-paper{position:absolute;top:-10px;left:15%;right:15%;height:65%;background:#fff;border-radius:6px;z-index:3;transition:transform 1s cubic-bezier(0.4,0,0.2,1) 0.4s;display:flex;align-items:center;justify-content:center;box-shadow:0 -5px 20px rgba(0,0,0,0.1)}
+  .envelope.opened .letter-paper{transform:translateY(min(-160px,-42vw))}
+  .letter-paper-lines{width:80%;height:70%;background:repeating-linear-gradient(transparent,transparent 18px,#f9a8d4 18px,#f9a8d4 19px);border-radius:4px}
+  .envelope-seal{position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#ec4899,#db2777);display:flex;align-items:center;justify-content:center;z-index:20;box-shadow:0 5px 20px rgba(236,72,153,0.4);animation:pulse 2s ease infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 5px 20px rgba(236,72,153,0.4)}50%{box-shadow:0 5px 40px rgba(236,72,153,0.7)}}
+  .click-hint{opacity:0;animation:fadeUp 1s ease forwards 2s}
+
+  /* Letter Overlay - fullscreen on mobile */
+  .letter-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.95);backdrop-filter:blur(10px);display:none;align-items:flex-start;justify-content:center;padding:0;opacity:0;transition:opacity 0.5s ease;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .letter-overlay.show{display:flex;opacity:1}
+  .letter-overlay::-webkit-scrollbar{display:none}
+  .letter-overlay{-ms-overflow-style:none;scrollbar-width:none}
+  .letter-frame{width:100%;max-width:600px;background:linear-gradient(135deg,#fff5f7,#ffe4ec);border-radius:16px 16px 0 0;padding:clamp(24px,5vw,40px) clamp(16px,4vw,32px);position:relative;transform:translateY(100%);transition:transform 0.6s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 -10px 60px rgba(236,72,153,0.2);min-height:100vh;margin-top:auto}
+  .letter-overlay.show .letter-frame{transform:translateY(0)}
+  .letter-frame::-webkit-scrollbar{display:none}
+  .letter-frame{-ms-overflow-style:none;scrollbar-width:none;overflow-y:auto}
+  .letter-stamp{position:absolute;top:12px;right:16px;width:50px;height:60px;background:linear-gradient(135deg,#fce7f3,#fbcfe8);border:2px dashed #f472b6;border-radius:4px;display:flex;align-items:center;justify-content:center;transform:rotate(5deg);box-shadow:0 3px 10px rgba(0,0,0,0.1)}
+  .letter-stamp span{font-size:24px}
+  .letter-content p{color:#4a1942;font-size:clamp(13px,3.5vw,15px);line-height:1.9;margin-bottom:12px;font-weight:400}
+  .letter-content .dialogue{font-style:italic;color:#831843;font-weight:500}
+  .letter-content .commentary{color:#9d174d;font-size:clamp(11px,3vw,13px)}
+  .letter-content .inner-thought{font-size:clamp(10px,2.8vw,12px)}
+  .letter-content .sign{font-family:'Caveat',cursive;font-size:clamp(20px,5vw,24px);color:#db2777;margin-top:20px}
+
+  /* Close bar for mobile letter */
+  .letter-close-bar{width:40px;height:4px;background:rgba(157,23,77,0.3);border-radius:2px;margin:0 auto 16px;cursor:pointer}
+
+  /* Collab */
+  #collab{
+    flex-direction:column;align-items:center;justify-content:flex-start;
+    background:radial-gradient(ellipse at 50% 50%,rgba(236,72,153,0.12) 0%,rgba(10,10,10,1) 70%);
+    padding:60px 16px 32px;gap:clamp(20px,4vw,40px);
+  }
+  .collab-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:700px}
+  @media(max-width:480px){.collab-grid{grid-template-columns:1fr 1fr 1fr;gap:6px}}
+  .collab-card{position:relative;border-radius:12px;overflow:hidden;aspect-ratio:3/4;cursor:pointer;transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.4s ease;box-shadow:0 10px 40px rgba(236,72,153,0.15);border:1px solid rgba(244,114,182,0.2)}
+  .collab-card:hover{transform:translateY(-6px) scale(1.03);box-shadow:0 20px 60px rgba(236,72,153,0.3)}
+  .collab-card:active{transform:scale(0.97)}
+  .collab-card img{width:100%;height:100%;object-fit:cover;transition:transform 0.6s ease}
+  .collab-card:hover img{transform:scale(1.1)}
+  .collab-card-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(131,24,67,0.9) 0%,rgba(131,24,67,0.2) 50%,transparent 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:clamp(8px,2vw,16px)}
+  .collab-card-tag{display:inline-flex;align-items:center;gap:4px;background:rgba(236,72,153,0.3);backdrop-filter:blur(10px);border:1px solid rgba(244,114,182,0.3);border-radius:20px;padding:2px 8px;font-size:clamp(8px,2vw,11px);color:#fce7f3;font-weight:500;margin-bottom:4px;width:fit-content}
+  .collab-bottom{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:700px}
+  .collab-box{background:rgba(255,255,255,0.03);border:1px solid rgba(244,114,182,0.15);border-radius:12px;padding:clamp(10px,2.5vw,16px);transition:all 0.3s ease}
+  .collab-box:active{transform:scale(0.96);background:rgba(236,72,153,0.08)}
+
+  /* Final */
+  #final{
+    flex-direction:column;align-items:center;justify-content:center;
+    background:radial-gradient(ellipse at 50% 50%,rgba(236,72,153,0.2) 0%,rgba(10,10,10,1) 60%);
+    padding:60px 20px 40px;gap:clamp(16px,3vw,30px);text-align:center;
+  }
+  .big-heart{font-size:clamp(60px,18vw,100px);animation:heartBeat 1.5s ease-in-out infinite}
+  .fireworks{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+  .spark{position:absolute;width:4px;height:4px;border-radius:50%;animation:sparkAnim 2s ease-out infinite}
+  @keyframes sparkAnim{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--tx),var(--ty)) scale(0);opacity:0}}
+  .glow-pink{text-shadow:0 0 20px rgba(236,72,153,0.5),0 0 40px rgba(236,72,153,0.3)}
+
+  .btn-pink{background:linear-gradient(135deg,#ec4899,#db2777);color:#fff;border:none;padding:clamp(12px,3vw,14px) clamp(24px,6vw,36px);border-radius:50px;font-size:clamp(13px,3.5vw,15px);font-weight:600;cursor:pointer;position:relative;overflow:hidden;transition:all 0.3s ease;box-shadow:0 10px 30px rgba(236,72,153,0.3);white-space:nowrap}
+  .btn-pink:active{transform:scale(0.95)!important}
+  .btn-pink::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 30%,rgba(255,255,255,0.2) 50%,transparent 70%);transform:translateX(-100%);transition:transform 0.6s ease}
+  .btn-pink:hover::after{transform:translateX(100%)}
+
+  .btn-outline-pink{background:transparent;color:#f472b6;border:1px solid rgba(244,114,182,0.4);padding:clamp(10px,2.5vw,12px) clamp(20px,5vw,32px);border-radius:50px;font-size:clamp(12px,3.2vw,14px);font-weight:500;cursor:pointer;transition:all 0.3s ease;white-space:nowrap}
+  .btn-outline-pink:active{transform:scale(0.95)!important;background:rgba(236,72,153,0.1)}
+
+  .progress-dots{position:fixed;top:max(env(safe-area-inset-top),12px);left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:200;background:rgba(0,0,0,0.6);backdrop-filter:blur(10px);padding:6px 14px;border-radius:50px;border:1px solid rgba(244,114,182,0.2)}
+  .dot{width:6px;height:6px;border-radius:50%;background:rgba(244,114,182,0.3);transition:all 0.4s ease}
+  .dot.active{background:#ec4899;box-shadow:0 0 10px rgba(236,72,153,0.5);width:18px;border-radius:3px}
+
+  .noise::before{content:'';position:fixed;inset:0;z-index:9999;background-image:url('https://grainy-gradients.vercel.app/noise.svg');opacity:0.03;pointer-events:none}
+
+  .mini-welcome{background:rgba(255,255,255,0.03);border:1px solid rgba(244,114,182,0.15);border-radius:16px;padding:clamp(14px,3.5vw,24px);max-width:400px;width:100%}
+
+  /* Safe area padding for notched phones */
+  @supports(padding:max(0px)){
+    .page{padding-bottom:max(env(safe-area-inset-bottom),16px)}
+  }
+</style>
+</head>
+<body class="noise">
+
+<div class="progress-dots">
+  <div class="dot active" data-page="welcome"></div>
+  <div class="dot" data-page="letter"></div>
+  <div class="dot" data-page="collab"></div>
+  <div class="dot" data-page="final"></div>
+</div>
+
+<!-- ===== PAGE 1: WELCOME ===== -->
+<div class="page active" id="welcome">
+  <div id="particles-welcome" style="position:absolute;inset:0;overflow:hidden;pointer-events:none;"></div>
+  <div class="welcome-heart">💗</div>
+  <h1 class="welcome-text text-center px-4 glow-pink"
+      style="font-size:clamp(28px,8vw,60px);font-weight:800;background:linear-gradient(135deg,#fce7f3,#f472b6,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+    Hey, It's Me...
+  </h1>
+  <p class="welcome-sub text-pink-300/70 text-center px-6 font-light mt-4"
+     style="font-size:clamp(14px,3.8vw,20px);line-height:1.6;">
+    Whatever you said... I heard every single word.<br>
+    <span class="text-pink-400/50" style="font-size:clamp(11px,3vw,14px);">I just didn't know how to respond then.</span>
+  </p>
+  <button class="welcome-btn btn-pink mt-8" onclick="goToPage('letter')">
+    <span class="flex items-center gap-2">Open <iconify-icon icon="solar:heart-bold"></iconify-icon></span>
+  </button>
+  <p class="welcome-btn text-pink-500/30 mt-6" style="font-size:clamp(10px,2.5vw,12px);animation-delay:2s;">just one tap away... 💭</p>
+</div>
+
+<!-- ===== PAGE 2: LETTER ===== -->
+<div class="page" id="letter">
+  <div id="particles-letter" style="position:absolute;inset:0;overflow:hidden;pointer-events:none;"></div>
+  <p class="text-pink-400/40 tracking-widest uppercase font-medium mb-6"
+     style="font-size:clamp(10px,2.8vw,14px);opacity:0;animation:fadeUp 0.8s ease forwards 0.3s;">
+    A Letter For You Mah 💌
+  </p>
+  <div class="envelope-container" onclick="openEnvelope()" id="envelopeContainer">
+    <div class="envelope" id="envelope">
+      <div class="envelope-flap"></div>
+      <div class="envelope-inner-flap"></div>
+      <div class="envelope-body">
+        <div class="letter-paper"><div class="letter-paper-lines"></div></div>
+      </div>
+      <div class="envelope-seal"><span class="text-white" style="font-size:14px;">💗</span></div>
+    </div>
+  </div>
+  <p class="click-hint text-pink-300/40 flex items-center gap-2 mt-8"
+     style="font-size:clamp(11px,3vw,14px);">
+    <iconify-icon icon="solar:cursor-bold" class="text-pink-400/60"></iconify-icon> Tap the envelope to read...
+  </p>
+</div>
+
+<!-- Letter Overlay -->
+<div class="letter-overlay" id="letterOverlay">
+  <div class="letter-frame" id="letterFrame">
+    <div class="letter-close-bar" onclick="closeLetter()"></div>
+    <div class="letter-stamp"><span>💌</span></div>
+    <div class="letter-content">
+      <p style="font-family:'Caveat',cursive;color:#db2777;margin-bottom:16px;font-size:clamp(18px,4.5vw,20px);">Dear Mah,</p>
+
+      <p>
+Ennoda aasa ennanu kettila .. ennoda aasa ellamea unta than irukku... Oru oru naal uh unta na atha maraimugama katra unakku yen athalam therila mah 🙂.. Ennoda aasaiyea munnadi enna irunthuchu athalam Enakku therila aana ipo Enakku irukura aasa ne mattum than mah .. enaku bayam enaku pudicha neyum Enakku kadaikama poiruvanu.. na enna yarukavum ethukagavum mathikala mah unakaga than na mathikitta enna .. apo kuda ne yosichi paru starting la na epdi irunthan ne epdi irunthanu aana athalam na kekama ne panna mah athalam ennoda aasa than .. aana ipo na kettum athu unta irunthu kadaikala mah Enakku ... Yosichi paru mah nanu neyum phone pesurapo apo namma love pannala namakkulla sanda apo enakku periods nu sonnathum ne thudichi poita Enakku sanda mukkiyam ila netha mukkiyam nu enta sonna mah apo kuda na ketta unta na emotion ah kattika virumbala athunala ne sandaiya pesunu na sonnapo ne enta enaku athu mukkiyam ila netha mukkiyam nu enna thanguna mah .. aana innaiku ennala mudila nu solliyum enta ne oru vartha olunga pesala mah athalam Enakku evalo kastama irunthuchu nu theriyuma mah ithalamea ennoda periya aasaigal mah ... Aana antha idathula unmaiya na onnumea expect panni iruka matta mah aana annaiku athu Enakku kadachathu ... Na ok sollama irunthu iruntha ipo kuda Enakku apdi patta carring la kadachi irukum la mah ... Munnadi la na oru phone panna yarta pesunalum avangala ignore pannitu pesuva mah aana ipo athalam ilanu kastama iruku mah ennoda chinna chinna aasaigal ipo Enakku perusa therithu mah 🥹... Sonna bayam kadaikama ellamea poirumo nu ... Ipo la aasaigal vanthalum manasulaiyea vachikira mah .. athunala than ne kettapo kuda kaluthula eruna apro atha paththi solra nu sonna ... Yosichi paru mah ne oru post Enakku anupuna snap and insta la athu trip pora maari oru ponnu paiyan antha paiyan plan nu keppan ponnu just us nu solum apo kuda ne enta thayangi ketta seat gaali ah irukunu apo kuda na 15 years aanalum seat irukuma nu athukku ne irukum na thencha thachi vaikira nu ne sonna apo kuda wait pannatum sekram varuva nu na sonna mah ... Enakku panam Venum jewel venu V2 venu soththu Venum ithalam na aasa padala mah ... Unkuda nimmathiya oru valka unnaiyum ennaiyum maari 2 kolanthainga.. namma irukka chinnatha oru V2 chinna chinna carring ithalam than mah ennoda aasa  .. ennoda aasailam unta than mah irukku athu yen unakku purilanu Enakku therila .. na unna Kovil kupta mah .. namma love panni Kovil nu kadavul bless namma vangala athunala than Kovil va mah nu kupta apo kuda ne Enakku nambikai ila ithalam pudikathu nu sonna ennoda aasaikaga ithalam ne panna matiya mah solu 🥹... Chinna vayasula na aasa pattathu kadachum naiku vittu erira maari than mah kadaikum 🥹 ennoda aasai netha mah .. ipovum solra starting na apdi iruntha aana poga poga apdi na ila mah ... Aana ne munnadi maari ila mah athalam Enakku romba kastama iruku mah 🥹♾️... Na sonnathu thappa iruntha enna manichiru mah ... Sorry 🖖🏻🥺♾️...
+      </p>
+
+      <p class="sign">Forever Sorry,<br>Your Love 💗</p>
+    </div>
+
+    <div class="flex justify-center mt-6 pb-4">
+      <button class="btn-pink" onclick="goToPage('collab');closeLetter();">
+        Next → Our Moments
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PAGE 3: COLLAB ===== -->
+<div class="page" id="collab">
+  <div id="particles-collab" style="position:absolute;inset:0;overflow:hidden;pointer-events:none;"></div>
+
+  <div style="text-align:center;position:relative;z-index:2;">
+    <p class="text-pink-400/40 tracking-widest uppercase font-medium mb-2"
+       style="font-size:clamp(9px,2.5vw,12px);">Our First Memory</p>
+    <h2 class="font-bold glow-pink"
+        style="font-size:clamp(24px,7vw,48px);background:linear-gradient(135deg,#fce7f3,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+      Us 🫶
+    </h2>
+    <p class="text-pink-300/40 mt-2 px-2" style="font-size:clamp(11px,3vw,14px);line-height:1.5;">
+      "This isn't a photo album. It's what plays in my head when I think of you."
+      <br><span style="font-size:clamp(9px,2.5vw,11px);color:rgba(244,114,182,0.3);">Yes, I'm that person now. Deal with it. 😌</span>
+    </p>
+  </div>
+
+  <div class="collab-grid" style="position:relative;z-index:2;">
+    <div class="collab-card">
+      <img src="love.jpg.jpeg" alt="Memory 1" loading="lazy">
+      <div class="collab-card-overlay">
+        <div class="collab-card-tag"><iconify-icon icon="solar:star-bold" style="color:#fbbf24;font-size:8px;"></iconify-icon> our</div>
+        <p class="text-white font-semibold" style="font-size:clamp(10px,2.8vw,14px);">Our First Meet</p>
+        <p class="text-pink-200/60 mt-1" style="font-size:clamp(8px,2.2vw,12px);line-height:1.4;">"You laughed at my first sight"</p>
+      </div>
+    </div>
+    <div class="collab-card">
+      <img src="love1.jpg.jpeg" alt="Memory 2" loading="lazy">
+      <div class="collab-card-overlay">
+        <div class="collab-card-tag"><iconify-icon icon="solar:heart-bold" style="color:#f472b6;font-size:8px;"></iconify-icon> Special</div>
+        <p class="text-white font-semibold" style="font-size:clamp(10px,2.8vw,14px);">After Our First Love Meet</p>
+        <p class="text-pink-200/60 mt-1" style="font-size:clamp(8px,2.2vw,12px);line-height:1.4;">"You looked at me after our first love Meet"</p>
+      </div>
+    </div>
+    <div class="collab-card">
+      <img src="love2.jpg.jpeg" alt="Memory 3" loading="lazy">
+      <div class="collab-card-overlay">
+        <div class="collab-card-tag"><iconify-icon icon="solar:fire-bold" style="color:#f97316;font-size:8px;"></iconify-icon> Unforgettable</div>
+        <p class="text-white font-semibold" style="font-size:clamp(10px,2.8vw,14px);">The Moment</p>
+        <p class="text-pink-200/60 mt-1" style="font-size:clamp(8px,2.2vw,12px);line-height:1.4;">"Not letting go. Not now, not ever. You're still mine. 💗"</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="collab-bottom" style="position:relative;z-index:2;">
+    <div class="collab-box text-center">
+      <p style="font-size:clamp(18px,5vw,24px);" class="mb-1">❤️</p>
+      <p class="text-pink-300/80 font-medium" style="font-size:clamp(10px,2.6vw,12px);">"I messed up. Big time."</p>
+      <p class="text-pink-500/30 mt-1" style="font-size:clamp(8px,2.2vw,10px);">But my heart still chooses you, every single time.</p>
+    </div>
+    <div class="collab-box text-center">
+      <p style="font-size:clamp(18px,5vw,24px);" class="mb-1">🖖🏻</p>
+      <p class="text-pink-300/80 font-medium" style="font-size:clamp(10px,2.6vw,12px);">"Don't worry about me."</p>
+      <p class="text-pink-500/30 mt-1" style="font-size:clamp(8px,2.2vw,10px);">Just promise me you won’t stop loving me.</p>
+    </div>
+    <div class="collab-box text-center">
+      <p style="font-size:clamp(18px,5vw,24px);" class="mb-1">💗</p>
+      <p class="text-pink-300/80 font-medium" style="font-size:clamp(10px,2.6vw,12px);">"You have every right to be mad."</p>
+      <p class="text-pink-500/30 mt-1" style="font-size:clamp(8px,2.2vw,10px);">But please don’t let go of us.</p>
+    </div>
+  </div>
+
+  <button class="btn-pink" onclick="goToPage('final')" style="position:relative;z-index:2;">
+    <span class="flex items-center gap-2">One Last Thing... <iconify-icon icon="solar:arrow-right-linear"></iconify-icon></span>
+  </button>
+</div>
+
+<!-- ===== PAGE 4: FINAL ===== -->
+<div class="page" id="final">
+  <div class="fireworks" id="fireworks"></div>
+  <div id="particles-final" style="position:absolute;inset:0;overflow:hidden;pointer-events:none;"></div>
+
+  <div class="big-heart" style="position:relative;z-index:2;">💝</div>
+
+  <h2 class="font-black glow-pink text-center px-4"
+      style="font-size:clamp(28px,9vw,60px);background:linear-gradient(135deg,#fce7f3,#f472b6,#db2777);-webkit-background-clip:text;-webkit-text-fill-color:transparent;position:relative;z-index:2;">
+    I'm Sorry.
+  </h2>
+
+  <p class="text-pink-300/60 text-center max-w-lg px-6"
+     style="font-size:clamp(13px,3.5vw,18px);line-height:1.6;position:relative;z-index:2;">
+    "I don't know what else to say... but give me one more chance.<br>Even if you don't want to. Especially if you don't want to."
+    <br><span style="font-size:clamp(10px,2.8vw,13px);color:rgba(244,114,182,0.4);">Because that's when I'll try the hardest. 🥺</span>
+  </p>
+
+  <div class="mini-welcome" style="position:relative;z-index:2;">
+    <div class="flex items-center gap-3 mb-3">
+      <div class="w-9 h-9 rounded-full bg-gradient-to-br from-pink-500 to-pink-700 flex items-center justify-center" style="font-size:14px;">💗</div>
+      <div class="text-left">
+        <p class="font-semibold text-pink-200" style="font-size:clamp(12px,3vw,14px);">Remember The First Page?</p>
+        <p class="text-pink-400/40" style="font-size:clamp(9px,2.3vw,10px);">"I heard every single word."</p>
+      </div>
+    </div>
+    <p class="text-pink-300/50 leading-relaxed" style="font-size:clamp(11px,2.8vw,13px);">
+      That line? I wasn't just saying it. I meant it then and I mean it now.
+      <br><span style="font-size:clamp(10px,2.5vw,11px);">I always listen. I'm just really slow at showing it. 😶</span>
+    </p>
+  </div>
+
+  <div class="flex flex-wrap gap-3 justify-center" style="position:relative;z-index:2;">
+    <button class="btn-pink" onclick="restartAll()">
+      <span class="flex items-center gap-2"><iconify-icon icon="solar:restart-bold"></iconify-icon> Start Again</span>
+    </button>
+    <button class="btn-outline-pink" onclick="sendHeartBurst()">
+      <span class="flex items-center gap-2">💗 Forgive Me?</span>
+    </button>
+  </div>
+
+  <p class="text-pink-500/20 mt-4" style="font-size:clamp(8px,2.2vw,10px);position:relative;z-index:2;">
+    made with too many feelings and not enough brain cells
+  </p>
+</div>
+
+<!-- Toast -->
+<div id="toast" style="position:fixed;bottom:max(env(safe-area-inset-bottom,20px),20px);left:50%;transform:translateX(-50%) translateY(100px);
+  background:linear-gradient(135deg,#ec4899,#db2777);color:#fff;padding:10px 24px;border-radius:50px;
+  font-size:clamp(12px,3.2vw,14px);font-weight:500;z-index:9999;transition:transform 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow:0 10px 40px rgba(236,72,153,0.4);pointer-events:none;white-space:nowrap;">
+  💗 Forgiven? That means everything!
+</div>
+
+<script>
+function goToPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('active');
+    p.scrollTop = 0;
+  });
+  document.getElementById(pageId).classList.add('active');
+  document.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
+  document.querySelector(`.dot[data-page="${pageId}"]`).classList.add('active');
+  if (pageId === 'collab') {
+    setTimeout(() => {
+      document.querySelectorAll('.collab-card, .collab-box').forEach((el, i) => {
+        setTimeout(() => {
+          el.style.opacity = '0'; el.style.transform = 'translateY(20px)';
+          el.style.transition = 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+          requestAnimationFrame(() => { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; });
+        }, i * 120);
+      });
+    }, 200);
+  }
+  if (pageId === 'final') createFireworks();
+}
+
+let envelopeOpened = false;
+function openEnvelope() {
+  if (envelopeOpened) return;
+  envelopeOpened = true;
+  document.getElementById('envelope').classList.add('opened');
+  setTimeout(() => {
+    const o = document.getElementById('letterOverlay');
+    o.style.display = 'flex';
+    requestAnimationFrame(() => { o.classList.add('show'); });
+  }, 1200);
+}
+function closeLetter() {
+  const o = document.getElementById('letterOverlay');
+  o.classList.remove('show');
+  setTimeout(() => { o.style.display = 'none'; }, 500);
+}
+
+// Swipe down to close letter
+let touchStartY = 0;
+const letterFrame = document.getElementById('letterFrame');
+letterFrame.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, {passive: true});
+letterFrame.addEventListener('touchend', e => {
+  const diff = e.changedTouches[0].clientY - touchStartY;
+  if (diff > 80 && letterFrame.scrollTop <= 0) closeLetter();
+}, {passive: true});
+
+function createParticles(id, count = 15) {
+  const c = document.getElementById(id); if (!c) return;
+  const emojis = ['💗','✨','🌸','💕','🩷','🦋'];
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div'); p.className = 'particle';
+    p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    p.style.left = Math.random()*100+'%';
+    p.style.fontSize = (6+Math.random()*12)+'px';
+    p.style.animationDuration = (8+Math.random()*12)+'s';
+    p.style.animationDelay = Math.random()*10+'s';
+    p.style.opacity = 0.1+Math.random()*0.25;
+    c.appendChild(p);
+  }
+}
+createParticles('particles-welcome',20);
+createParticles('particles-letter',10);
+createParticles('particles-collab',10);
+createParticles('particles-final',15);
+
+function createFireworks() {
+  const c = document.getElementById('fireworks'); c.innerHTML = '';
+  const colors = ['#ec4899','#f472b6','#f9a8d4','#fce7f3','#fbbf24','#a78bfa'];
+  for (let b = 0; b < 4; b++) {
+    setTimeout(() => {
+      const cx = 15+Math.random()*70, cy = 15+Math.random()*70;
+      for (let i = 0; i < 15; i++) {
+        const s = document.createElement('div'); s.className = 'spark';
+        const a = (Math.PI*2*i)/15, d = 40+Math.random()*80;
+        s.style.left = cx+'%'; s.style.top = cy+'%';
+        s.style.background = colors[Math.floor(Math.random()*colors.length)];
+        s.style.setProperty('--tx', Math.cos(a)*d+'px');
+        s.style.setProperty('--ty', Math.sin(a)*d+'px');
+        s.style.animationDelay = Math.random()*0.3+'s';
+        const sz = (2+Math.random()*3)+'px';
+        s.style.width = sz; s.style.height = sz;
+        c.appendChild(s);
+      }
+    }, b*500);
+  }
+}
+
+function sendHeartBurst() {
+  const hearts = ['💗','💕','💖','💝','🩷','🥺','😭','✨'];
+  for (let i = 0; i < 25; i++) {
+    const h = document.createElement('div');
+    h.textContent = hearts[Math.floor(Math.random()*hearts.length)];
+    h.style.cssText = `position:fixed;left:${40+Math.random()*20}%;top:50%;font-size:${14+Math.random()*20}px;pointer-events:none;z-index:10000;transition:all 1.5s cubic-bezier(0.25,0.46,0.45,0.94);`;
+    document.body.appendChild(h);
+    requestAnimationFrame(() => {
+      h.style.transform = `translate(${(Math.random()-0.5)*300}px,${-150-Math.random()*300}px) rotate(${Math.random()*360}deg)`;
+      h.style.opacity = '0';
+    });
+    setTimeout(() => h.remove(), 2000);
+  }
+  const t = document.getElementById('toast');
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  setTimeout(() => { t.style.transform = 'translateX(-50%) translateY(100px)'; }, 3000);
+}
+
+function restartAll() {
+  envelopeOpened = false;
+  document.getElementById('envelope').classList.remove('opened');
+  const o = document.getElementById('letterOverlay');
+  o.classList.remove('show');
+  setTimeout(() => { o.style.display = 'none'; }, 500);
+  goToPage('welcome');
+}
+
+// Swipe navigation between pages
+let pageTouchStartX = 0, pageTouchStartY = 0;
+document.addEventListener('touchstart', e => {
+  pageTouchStartX = e.touches[0].clientX;
+  pageTouchStartY = e.touches[0].clientY;
+}, {passive: true});
+document.addEventListener('touchend', e => {
+  if (document.getElementById('letterOverlay').classList.contains('show')) return;
+  const dx = e.changedTouches[0].clientX - pageTouchStartX;
+  const dy = e.changedTouches[0].clientY - pageTouchStartY;
+  if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 60) {
+    const pages = ['welcome','letter','collab','final'];
+    const ci = pages.indexOf(document.querySelector('.page.active').id);
+    if (dx < 0 && ci < pages.length-1) {
+      if (ci === 1 && !envelopeOpened) openEnvelope();
+      else goToPage(pages[ci+1]);
+    }
+    if (dx > 0 && ci > 0) goToPage(pages[ci-1]);
+  }
+}, {passive: true});
+</script>
+</body>
+</html>
